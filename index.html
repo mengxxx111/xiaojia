@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: #faf7f5;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px 16px 40px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 500;
+            color: #5a4a42;
+            letter-spacing: 2px;
+        }
+        .slogan {
+            font-size: 13px;
+            color: #99867d;
+            margin-top: 6px;
+        }
+        .input-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            box-shadow: 0 2px 12px rgba(90, 74, 66, 0.06);
+        }
+        textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100px;
+            color: #333;
+        }
+        textarea::placeholder {
+            color: #bbb;
+        }
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .scene-btn {
+            padding: 14px 0;
+            border: none;
+            border-radius: 10px;
+            background: #fff;
+            color: #5a4a42;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(90, 74, 66, 0.05);
+            transition: all 0.2s;
+        }
+        .scene-btn:active {
+            transform: scale(0.98);
+            background: #f5ebe4;
+        }
+        .scene-btn.active {
+            background: #5a4a42;
+            color: #fff;
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8b7355, #5a4a42);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(90, 74, 66, 0.2);
+            transition: all 0.2s;
+        }
+        .generate-btn:active {
+            transform: scale(0.99);
+        }
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .result-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            box-shadow: 0 2px 12px rgba(90, 74, 66, 0.06);
+            display: none;
+        }
+        .result-title {
+            font-size: 13px;
+            color: #99867d;
+            margin-bottom: 10px;
+        }
+        .result-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .copy-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d4c7bc;
+            border-radius: 8px;
+            background: #faf7f5;
+            color: #5a4a42;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #c4b5aa;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #99867d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">小家</div>
+        <div class="slogan">两人即成小家</div>
+    </div>
+
+    <div class="input-box">
+        <textarea id="input" placeholder="把你想说的话写在这里，气话、委屈、想念都可以…"></textarea>
+    </div>
+
+    <div class="btn-group">
+        <button class="scene-btn active" data-scene="peace">吵架和解</button>
+        <button class="scene-btn" data-scene="soft">委婉表达</button>
+        <button class="scene-btn" data-scene="warm">日常暖心</button>
+        <button class="scene-btn" data-scene="sorry">郑重道歉</button>
+    </div>
+
+    <button class="generate-btn" id="generate">生成话术</button>
+
+    <div class="result-box" id="resultBox">
+        <div class="result-title">帮你润色成：</div>
+        <div class="result-text" id="resultText"></div>
+        <button class="copy-btn" id="copyBtn">复制话术</button>
+    </div>
+
+    <div class="footer">
+        好好说话，慢慢过日子
+    </div>
+
+    <script>
+        const sceneBtns = document.querySelectorAll('.scene-btn');
+        const generateBtn = document.getElementById('generate');
+        const input = document.getElementById('input');
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        let currentScene = 'peace';
+
+        // 场景切换
+        sceneBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sceneBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentScene = btn.dataset.scene;
+            });
+        });
+
+        // 生成话术
+        generateBtn.addEventListener('click', async () => {
+            const content = input.value.trim();
+            if (!content) {
+                alert('先写下你想说的话呀');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = '生成中…';
+            resultBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        scene: currentScene,
+                        content: content
+                    })
+                });
+
+                const data = await res.json();
+                if (data.result) {
+                    resultText.textContent = data.result;
+                    resultBox.style.display = 'block';
+                } else {
+                    alert('生成失败，请稍后再试');
+                }
+            } catch (e) {
+                alert('网络出错，请检查后重试');
+                console.error(e);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '生成话术';
+            }
+        });
+
+        // 复制功能
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(resultText.textContent).then(() => {
+                copyBtn.textContent = '已复制';
+                setTimeout(() => {
+                    copyBtn.textContent = '复制话术';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
