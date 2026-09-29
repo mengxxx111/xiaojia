@@ -6,7 +6,7 @@ exports.handler = async (event) => {
 
     try {
         const { scene, content } = JSON.parse(event.body);
-        
+
         // 4个场景的系统提示词
         const prompts = {
             peace: '你是亲密关系沟通助手，专门帮助情侣/夫妻把带情绪的狠话、气话，转化为温和、真诚、愿意沟通的和解话术。要求：口语化，像日常说话，不要书面；不指责对方，先讲自己的感受和在意；态度柔软但不卑微；简短自然，100字以内；只输出话术本身，不要多余解释。',
@@ -23,7 +23,7 @@ exports.handler = async (event) => {
                 'Authorization': `Bearer ${process.env.DOUBAO_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'doubao-seed-2.0-mini',
+                model: 'doubao-seed-2-0-mini-260428',
                 messages: [
                     { role: 'system', content: prompts[scene] },
                     { role: 'user', content: content }
