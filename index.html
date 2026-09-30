@@ -445,7 +445,7 @@
     <!-- 存图弹窗 -->
     <div class="modal-overlay" id="modalOverlay">
         <img id="modalImg" src="" alt="话术卡片">
-        <div class="modal-tip">长按图片即可保存到相册<br>再分享给TA或发小红书</div>
+        <div class="modal-tip">直接截屏这张图就能保存<br>iPhone：电源键+音量上键<br>安卓：电源键+音量下键</div>
         <button class="modal-close" id="modalClose">关闭</button>
     </div>
 
@@ -614,8 +614,12 @@
                     const text = resultText.textContent;
                     const tag = sceneNames[currentScene];
                     const canvas = drawShareCard(text, tag);
-                    modalImg.src = canvas.toDataURL('image/png');
-                    modalOverlay.classList.add('show');
+                    // 用blob URL而不是data URL，微信里长按更可能保存
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        modalImg.src = url;
+                        modalOverlay.classList.add('show');
+                    }, 'image/png');
                 } catch (err) {
                     console.error(err);
                     showToast('生成失败，请直接截屏');
