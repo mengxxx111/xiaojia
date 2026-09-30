@@ -359,6 +359,7 @@
         }
 
         /* 隐藏Netlify水印 */
+        #nl-badge-frame,
         .netlify-badge,
         a[href*="netlify.com"][target="_blank"],
         iframe[src*="netlify"] {
@@ -611,44 +612,20 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：生成卡片大图，全屏展示，长按保存
+        // 存图：直接打开服务器生成的图片URL，微信可长按保存
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
 
             setTimeout(() => {
                 try {
-                    const text = resultText.textContent;
-                    const tag = sceneNames[currentScene];
-                    const canvas = drawShareCard(text, tag);
-                    const dataUrl = canvas.toDataURL('image/png');
-
-                    // 打开新页面，全屏显示图片
-                    const w = window.open('', '_blank');
-                    if (w) {
-                        w.document.write(`
-                            <html><head><meta name="viewport" content="width=device-width, initial-scale=1">
-                            <title>保存图片</title>
-                            <style>
-                                body { margin:0; background:#1a1a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
-                                img { max-width:100%; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.5); }
-                                p { color:#999; font-size:14px; margin-top:16px; text-align:center; line-height:1.8; }
-                            </style></head>
-                            <body>
-                                <img src="${dataUrl}">
-                                <p>长按图片 → 保存到相册</p>
-                            </body></html>
-                        `);
-                        w.document.close();
-                    } else {
-                        // 弹窗被拦截，退回modal
-                        modalImg.src = dataUrl;
-                        modalOverlay.classList.add('show');
-                    }
+                    const text = encodeURIComponent(resultText.textContent);
+                    const tag = encodeURIComponent(sceneNames[currentScene]);
+                    // 直接跳转服务器生成的图片，这是真正的HTTP图片URL
+                    window.location.href = `/.netlify/functions/card?text=${text}&tag=${tag}`;
                 } catch (err) {
                     console.error(err);
-                    showToast('生成失败，请直接截屏');
-                } finally {
+                    showToast('生成失败，请稍后再试');
                     shareBtn.textContent = '存图';
                     shareBtn.disabled = false;
                 }
