@@ -143,7 +143,7 @@
             font-weight: 600;
         }
 
-        /* 档位选择（语气/长短） */
+        /* 档位选择 */
         .ladder {
             display: flex;
             gap: 6px;
@@ -226,46 +226,61 @@
 
         /* 结果卡片 */
         .result-card {
-            background: #fff;
-            border-radius: 18px;
-            padding: 24px 20px;
+            background: linear-gradient(180deg, #FFF9F5, #FFF3EC);
+            border-radius: 20px;
+            padding: 28px 22px;
             margin-top: 20px;
-            box-shadow: 0 4px 24px rgba(201,112,90,0.1);
+            box-shadow: 0 6px 28px rgba(201,112,90,0.12);
             display: none;
             position: relative;
             overflow: hidden;
+            border: 1px solid #FFE0D6;
         }
         .result-card::before {
-            content: '"';
+            content: '“';
             position: absolute;
-            top: -10px;
-            left: 14px;
-            font-size: 80px;
-            color: #FFE0D6;
-            font-family: Georgia, serif;
+            top: 4px;
+            left: 16px;
+            font-size: 72px;
+            color: #FFC9B5;
+            font-family: Georgia, "Times New Roman", serif;
+            line-height: 1;
+        }
+        .result-card::after {
+            content: '”';
+            position: absolute;
+            bottom: -20px;
+            right: 16px;
+            font-size: 72px;
+            color: #FFC9B5;
+            font-family: Georgia, "Times New Roman", serif;
             line-height: 1;
         }
         .result-tag {
             display: inline-block;
             font-size: 11px;
-            color: #E8927C;
-            background: #FFF0EA;
-            padding: 3px 10px;
-            border-radius: 10px;
-            margin-bottom: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #E8927C, #D4755F);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
             letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
         }
         .result-text {
             font-size: 16px;
             line-height: 2;
             color: #5C4033;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             position: relative;
             z-index: 1;
         }
         .result-actions {
             display: flex;
             gap: 8px;
+            position: relative;
+            z-index: 1;
         }
         .action-btn {
             flex: 1;
@@ -285,12 +300,53 @@
             font-weight: 500;
         }
         .action-btn.secondary {
-            background: #FFF0EA;
+            background: #fff;
             color: #C9705A;
+            border: 1px solid #FFD4C4;
         }
         .action-btn.ghost {
-            background: #F8F0EB;
+            background: #fff;
             color: #B89E8E;
+            border: 1px solid #F0E0D8;
+        }
+
+        /* 存图弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-overlay img {
+            max-width: 100%;
+            max-height: 75vh;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+        .modal-tip {
+            color: #fff;
+            font-size: 14px;
+            margin-top: 16px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .modal-close {
+            margin-top: 16px;
+            padding: 10px 30px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 20px;
+            background: transparent;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
         }
 
         /* 底部 */
@@ -300,6 +356,26 @@
             font-size: 12px;
             color: #D4BFB5;
             letter-spacing: 3px;
+        }
+
+        /* toast提示 */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
         }
     </style>
 </head>
@@ -366,6 +442,16 @@
         <div class="footer">好好说话 · 慢慢过日子</div>
     </div>
 
+    <!-- 存图弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <img id="modalImg" src="" alt="话术卡片">
+        <div class="modal-tip">长按图片即可保存到相册<br>再分享给TA或发小红书</div>
+        <button class="modal-close" id="modalClose">关闭</button>
+    </div>
+
+    <!-- toast -->
+    <div class="toast" id="toast"></div>
+
     <script>
         const sceneBtns = document.querySelectorAll('.scene-btn');
         const genderBtns = document.querySelectorAll('.gender-btn');
@@ -380,6 +466,10 @@
         const copyBtn = document.getElementById('copyBtn');
         const regenBtn = document.getElementById('regenBtn');
         const shareBtn = document.getElementById('shareBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalImg = document.getElementById('modalImg');
+        const modalClose = document.getElementById('modalClose');
+        const toast = document.getElementById('toast');
 
         let currentScene = 'peace';
         let currentGender = 'female';
@@ -391,6 +481,12 @@
             male: ['克制', '沉稳', '温柔', '幽默', '俏皮'],
             female: ['克制', '温柔', '体贴', '俏皮', '撒娇']
         };
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
 
         // 场景切换
         sceneBtns.forEach(btn => {
@@ -407,7 +503,6 @@
                 genderBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentGender = btn.dataset.gender;
-                // 更新语气标签
                 const labels = toneLabels[currentGender];
                 toneBtns.forEach((b, i) => { b.textContent = labels[i]; });
             });
@@ -462,10 +557,10 @@
                     resultTag.textContent = sceneNames[currentScene];
                     resultCard.style.display = 'block';
                 } else {
-                    alert('生成失败，请稍后再试');
+                    showToast('生成失败，请稍后再试');
                 }
             } catch (e) {
-                alert('网络出错，请检查后重试');
+                showToast('网络出错，请检查后重试');
             } finally {
                 generateBtn.disabled = false;
                 loadingCard.style.display = 'none';
@@ -475,34 +570,70 @@
         generateBtn.addEventListener('click', generate);
         regenBtn.addEventListener('click', generate);
 
-        // 复制
+        // 复制（兼容手机/微信浏览器）
         copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(resultText.textContent).then(() => {
-                copyBtn.textContent = '已复制 ✓';
-                setTimeout(() => { copyBtn.textContent = '复制'; }, 1800);
-            });
+            const text = resultText.textContent;
+
+            // 方案1：现代Clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('已复制，去粘贴给TA吧');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
         });
 
-        // 存图分享
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('已复制，去粘贴给TA吧');
+            } catch (e) {
+                showToast('复制失败，请长按文字手动复制');
+            }
+            document.body.removeChild(ta);
+        }
+
+        // 存图：生成图片后弹窗，长按保存
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
+
             html2canvas(resultCard, {
-                backgroundColor: '#fff',
+                backgroundColor: '#FFF9F5',
                 scale: 2,
-                logging: false
+                logging: false,
+                useCORS: true
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = '小家话术.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                modalImg.src = canvas.toDataURL('image/png');
+                modalOverlay.classList.add('show');
                 shareBtn.textContent = '存图';
                 shareBtn.disabled = false;
-            }).catch(() => {
+            }).catch(err => {
+                console.error(err);
+                showToast('图片生成失败，请截图保存');
                 shareBtn.textContent = '存图';
                 shareBtn.disabled = false;
-                alert('图片生成失败，请截图分享');
             });
+        });
+
+        modalClose.addEventListener('click', () => {
+            modalOverlay.classList.remove('show');
+        });
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('show');
+            }
         });
     </script>
 </body>
