@@ -612,7 +612,7 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：不跳转，直接在当前页面全屏显示图片（避免新页面的长按限制）
+        // 存图：当前页面内全屏显示图片，不跳转
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
@@ -622,42 +622,37 @@
                 const tag = encodeURIComponent(sceneNames[currentScene]);
                 const imgUrl = `/.netlify/functions/card?text=${text}&tag=${tag}`;
 
-                // 创建全屏覆盖层
-                let overlay = document.getElementById('fullscreenImgOverlay');
+                let overlay = document.getElementById('imgOverlay');
                 if (!overlay) {
                     overlay = document.createElement('div');
-                    overlay.id = 'fullscreenImgOverlay';
-                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#FFEDE4;z-index:99999;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;';
-                    overlay.innerHTML = `
-                        <div style="position:sticky;top:10px;right:10px;text-align:right;padding:10px;z-index:2;">
-                            <span id="closeFullscreenImg" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;background:rgba(0,0,0,0.3);color:#fff;border-radius:50%;font-size:20px;">×</span>
-                        </div>
-                        <img id="fullscreenImg" src="" style="width:100%;display:block;margin-top:-56px;" />
-                    `;
+                    overlay.id = 'imgOverlay';
+                    overlay.style.cssText = 'position:fixed;inset:0;background:#FFEDE4;z-index:99999;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;';
                     document.body.appendChild(overlay);
-                    document.getElementById('closeFullscreenImg').addEventListener('click', () => {
-                        overlay.style.display = 'none';
-                    });
                 }
 
-                const fsImg = document.getElementById('fullscreenImg');
-                fsImg.onload = () => {
+                overlay.innerHTML = `
+                    <div style="padding:12px 16px;">
+                        <span id="imgBack" style="display:inline-block;padding:6px 16px;background:rgba(0,0,0,0.25);color:#fff;border-radius:20px;font-size:14px;cursor:pointer;">← 返回</span>
+                    </div>
+                    <img id="imgOverlayPic" src="${imgUrl}" style="width:100%;display:block;pointer-events:auto;-webkit-touch-callout:default;" />
+                `;
+
+                const pic = document.getElementById('imgOverlayPic');
+                const show = () => {
                     overlay.style.display = 'block';
-                    document.body.style.overflow = 'hidden';
                     shareBtn.textContent = '存图';
                     shareBtn.disabled = false;
                 };
-                fsImg.src = imgUrl;
+                if (pic.complete) {
+                    show();
+                } else {
+                    pic.onload = show;
+                    setTimeout(show, 5000);
+                }
 
-                // 超时兜底
-                setTimeout(() => {
-                    if (overlay.style.display !== 'block') {
-                        overlay.style.display = 'block';
-                        document.body.style.overflow = 'hidden';
-                        shareBtn.textContent = '存图';
-                        shareBtn.disabled = false;
-                    }
-                }, 5000);
+                document.getElementById('imgBack').addEventListener('click', () => {
+                    overlay.style.display = 'none';
+                });
 
             } catch (err) {
                 console.error(err);
