@@ -3,181 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小家</title>
+    <title>小家 · 好好说话</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
-            background: #faf7f5;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #FFF6F0 0%, #FFEDE4 50%, #FFE8DE 100%);
+            color: #4A3728;
             min-height: 100vh;
-            padding: 20px 16px 40px;
         }
+        .container {
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 24px 18px 40px;
+        }
+
+        /* 顶部 */
         .header {
             text-align: center;
-            padding: 30px 0 20px;
+            padding: 20px 0 28px;
         }
-        .logo {
-            font-size: 28px;
-            font-weight: 500;
-            color: #5a4a42;
+        .header .logo {
+            font-size: 30px;
+            font-weight: 600;
+            color: #C9705A;
+            letter-spacing: 8px;
+            text-indent: 8px;
+        }
+        .header .slogan {
+            font-size: 13px;
+            color: #C4A89A;
+            margin-top: 8px;
             letter-spacing: 2px;
         }
-        .slogan {
-            font-size: 13px;
-            color: #99867d;
-            margin-top: 6px;
+        .header .divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #E8B4A0, transparent);
+            margin: 14px auto 0;
+            border-radius: 2px;
         }
-        .input-box {
+
+        /* 性别切换 */
+        .gender-row {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 18px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 30px;
+            padding: 4px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 10px rgba(201,112,90,0.06);
+        }
+        .gender-btn {
+            padding: 8px 28px;
+            border: none;
+            background: transparent;
+            border-radius: 26px;
+            font-size: 14px;
+            color: #B89E8E;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .gender-btn.active {
+            background: linear-gradient(135deg, #E8927C, #D4755F);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(212,117,95,0.3);
+        }
+
+        /* 输入框 */
+        .input-card {
             background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            margin: 20px 0;
-            box-shadow: 0 2px 12px rgba(90, 74, 66, 0.06);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(201,112,90,0.07);
         }
-        textarea {
+        .input-card textarea {
             width: 100%;
             border: none;
             outline: none;
             resize: none;
             font-size: 15px;
-            line-height: 1.6;
-            min-height: 100px;
-            color: #333;
+            line-height: 1.8;
+            min-height: 90px;
+            color: #4A3728;
+            background: transparent;
         }
-        textarea::placeholder {
-            color: #bbb;
+        .input-card textarea::placeholder {
+            color: #D4C0B5;
         }
-        .btn-group {
+
+        /* 区块标题 */
+        .section-label {
+            font-size: 13px;
+            color: #B89E8E;
+            margin: 18px 0 10px 4px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* 场景按钮 */
+        .scene-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
         }
         .scene-btn {
             padding: 14px 0;
+            border: 2px solid transparent;
+            border-radius: 14px;
+            background: #fff;
+            color: #8A7060;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(201,112,90,0.05);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .scene-btn:active {
+            transform: scale(0.97);
+        }
+        .scene-btn.active {
+            background: linear-gradient(135deg, #FFE0D6, #FFD4C4);
+            border-color: #E8927C;
+            color: #C9705A;
+            font-weight: 600;
+        }
+
+        /* 档位选择（语气/长短） */
+        .ladder {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .ladder-btn {
+            flex: 1;
+            min-width: 58px;
+            padding: 9px 4px;
             border: none;
             border-radius: 10px;
             background: #fff;
-            color: #5a4a42;
-            font-size: 14px;
+            color: #B89E8E;
+            font-size: 12px;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(90, 74, 66, 0.05);
+            box-shadow: 0 1px 4px rgba(201,112,90,0.05);
             transition: all 0.2s;
+            text-align: center;
         }
-        .scene-btn:active {
-            transform: scale(0.98);
-            background: #f5ebe4;
+        .ladder-btn:active {
+            transform: scale(0.95);
         }
-        .scene-btn.active {
-            background: #5a4a42;
+        .ladder-btn.active {
+            background: linear-gradient(135deg, #E8927C, #D4755F);
             color: #fff;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(212,117,95,0.25);
         }
+
+        /* 生成按钮 */
         .generate-btn {
             width: 100%;
-            padding: 16px;
+            padding: 17px;
             border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #8b7355, #5a4a42);
+            border-radius: 30px;
+            background: linear-gradient(135deg, #E8927C, #C9705A);
             color: #fff;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(90, 74, 66, 0.2);
+            box-shadow: 0 6px 20px rgba(201,112,90,0.3);
+            margin-top: 24px;
             transition: all 0.2s;
+            letter-spacing: 2px;
         }
         .generate-btn:active {
-            transform: scale(0.99);
+            transform: scale(0.98);
         }
         .generate-btn:disabled {
             opacity: 0.6;
-            cursor: not-allowed;
         }
-        .result-box {
+
+        /* 加载 */
+        .loading-card {
             background: #fff;
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: 18px;
+            padding: 30px;
             margin-top: 20px;
-            box-shadow: 0 2px 12px rgba(90, 74, 66, 0.06);
+            text-align: center;
+            color: #C4A89A;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(201,112,90,0.07);
             display: none;
         }
-        .result-title {
-            font-size: 13px;
-            color: #99867d;
-            margin-bottom: 10px;
+        .loading-card .pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E8927C;
+            margin: 0 3px;
+            animation: pulse 1.2s infinite ease-in-out;
+        }
+        .loading-card .pulse:nth-child(2) { animation-delay: 0.2s; }
+        .loading-card .pulse:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 结果卡片 */
+        .result-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 24px 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 24px rgba(201,112,90,0.1);
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .result-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 14px;
+            font-size: 80px;
+            color: #FFE0D6;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .result-tag {
+            display: inline-block;
+            font-size: 11px;
+            color: #E8927C;
+            background: #FFF0EA;
+            padding: 3px 10px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
         }
         .result-text {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #333;
-            margin-bottom: 12px;
+            font-size: 16px;
+            line-height: 2;
+            color: #5C4033;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
         }
-        .copy-btn {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #d4c7bc;
-            border-radius: 8px;
-            background: #faf7f5;
-            color: #5a4a42;
+        .result-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 11px 0;
+            border: none;
+            border-radius: 12px;
             font-size: 13px;
             cursor: pointer;
+            transition: all 0.2s;
         }
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #E8927C, #D4755F);
+            color: #fff;
+            font-weight: 500;
+        }
+        .action-btn.secondary {
+            background: #FFF0EA;
+            color: #C9705A;
+        }
+        .action-btn.ghost {
+            background: #F8F0EB;
+            color: #B89E8E;
+        }
+
+        /* 底部 */
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 36px;
             font-size: 12px;
-            color: #c4b5aa;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #99867d;
-            font-size: 14px;
+            color: #D4BFB5;
+            letter-spacing: 3px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">小家</div>
-        <div class="slogan">两人即成小家</div>
-    </div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">小家</div>
+            <div class="slogan">两人即成小家</div>
+            <div class="divider"></div>
+        </div>
 
-    <div class="input-box">
-        <textarea id="input" placeholder="把你想说的话写在这里，气话、委屈、想念都可以…"></textarea>
-    </div>
+        <div class="gender-row">
+            <button class="gender-btn active" data-gender="female">我是 她</button>
+            <button class="gender-btn" data-gender="male">我是 他</button>
+        </div>
 
-    <div class="btn-group">
-        <button class="scene-btn active" data-scene="peace">吵架和解</button>
-        <button class="scene-btn" data-scene="soft">委婉表达</button>
-        <button class="scene-btn" data-scene="warm">日常暖心</button>
-        <button class="scene-btn" data-scene="sorry">郑重道歉</button>
-    </div>
+        <div class="input-card">
+            <textarea id="input" placeholder="把你想说的话写在这里，气话、委屈、想念都可以…"></textarea>
+        </div>
 
-    <button class="generate-btn" id="generate">生成话术</button>
+        <div class="section-label">选择场景</div>
+        <div class="scene-grid">
+            <button class="scene-btn active" data-scene="peace">💢 吵架和解</button>
+            <button class="scene-btn" data-scene="soft">🌸 委婉表达</button>
+            <button class="scene-btn" data-scene="warm">☀️ 日常暖心</button>
+            <button class="scene-btn" data-scene="sorry">🤍 郑重道歉</button>
+        </div>
 
-    <div class="result-box" id="resultBox">
-        <div class="result-title">帮你润色成：</div>
-        <div class="result-text" id="resultText"></div>
-        <button class="copy-btn" id="copyBtn">复制话术</button>
-    </div>
+        <div class="section-label">语气</div>
+        <div class="ladder" id="toneLadder">
+            <button class="ladder-btn" data-level="1">克制</button>
+            <button class="ladder-btn" data-level="2">温柔</button>
+            <button class="ladder-btn active" data-level="3">体贴</button>
+            <button class="ladder-btn" data-level="4">俏皮</button>
+            <button class="ladder-btn" data-level="5">撒娇</button>
+        </div>
 
-    <div class="footer">
-        好好说话，慢慢过日子
+        <div class="section-label">长短</div>
+        <div class="ladder" id="lengthLadder">
+            <button class="ladder-btn" data-level="1">一句话</button>
+            <button class="ladder-btn active" data-level="2">两三句</button>
+            <button class="ladder-btn" data-level="3">一段话</button>
+            <button class="ladder-btn" data-level="4">小段落</button>
+            <button class="ladder-btn" data-level="5">情书</button>
+        </div>
+
+        <button class="generate-btn" id="generate">✨ 生成话术</button>
+
+        <div class="loading-card" id="loadingCard">
+            <span class="pulse"></span><span class="pulse"></span><span class="pulse"></span>
+            <div style="margin-top:10px">正在替你好好说话…</div>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <span class="result-tag" id="resultTag">吵架和解</span>
+            <div class="result-text" id="resultText"></div>
+            <div class="result-actions">
+                <button class="action-btn secondary" id="regenBtn">换一条</button>
+                <button class="action-btn primary" id="copyBtn">复制</button>
+                <button class="action-btn ghost" id="shareBtn">存图</button>
+            </div>
+        </div>
+
+        <div class="footer">好好说话 · 慢慢过日子</div>
     </div>
 
     <script>
         const sceneBtns = document.querySelectorAll('.scene-btn');
+        const genderBtns = document.querySelectorAll('.gender-btn');
+        const toneBtns = document.querySelectorAll('#toneLadder .ladder-btn');
+        const lengthBtns = document.querySelectorAll('#lengthLadder .ladder-btn');
         const generateBtn = document.getElementById('generate');
         const input = document.getElementById('input');
-        const resultBox = document.getElementById('resultBox');
+        const resultCard = document.getElementById('resultCard');
         const resultText = document.getElementById('resultText');
+        const resultTag = document.getElementById('resultTag');
+        const loadingCard = document.getElementById('loadingCard');
         const copyBtn = document.getElementById('copyBtn');
+        const regenBtn = document.getElementById('regenBtn');
+        const shareBtn = document.getElementById('shareBtn');
 
         let currentScene = 'peace';
+        let currentGender = 'female';
+        let currentTone = 3;
+        let currentLength = 2;
+
+        const sceneNames = { peace: '吵架和解', soft: '委婉表达', warm: '日常暖心', sorry: '郑重道歉' };
+        const toneLabels = {
+            male: ['克制', '沉稳', '温柔', '幽默', '俏皮'],
+            female: ['克制', '温柔', '体贴', '俏皮', '撒娇']
+        };
 
         // 场景切换
         sceneBtns.forEach(btn => {
@@ -188,17 +401,47 @@
             });
         });
 
-        // 生成话术
-        generateBtn.addEventListener('click', async () => {
+        // 性别切换
+        genderBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                genderBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentGender = btn.dataset.gender;
+                // 更新语气标签
+                const labels = toneLabels[currentGender];
+                toneBtns.forEach((b, i) => { b.textContent = labels[i]; });
+            });
+        });
+
+        // 语气档位
+        toneBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toneBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTone = parseInt(btn.dataset.level);
+            });
+        });
+
+        // 长短档位
+        lengthBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                lengthBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLength = parseInt(btn.dataset.level);
+            });
+        });
+
+        // 调用生成
+        async function generate() {
             const content = input.value.trim();
             if (!content) {
-                alert('先写下你想说的话呀');
+                input.focus();
                 return;
             }
 
             generateBtn.disabled = true;
-            generateBtn.textContent = '生成中…';
-            resultBox.style.display = 'none';
+            loadingCard.style.display = 'block';
+            resultCard.style.display = 'none';
 
             try {
                 const res = await fetch('/.netlify/functions/chat', {
@@ -206,33 +449,59 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         scene: currentScene,
-                        content: content
+                        content: content,
+                        gender: currentGender,
+                        tone: currentTone,
+                        length: currentLength
                     })
                 });
 
                 const data = await res.json();
                 if (data.result) {
                     resultText.textContent = data.result;
-                    resultBox.style.display = 'block';
+                    resultTag.textContent = sceneNames[currentScene];
+                    resultCard.style.display = 'block';
                 } else {
                     alert('生成失败，请稍后再试');
                 }
             } catch (e) {
                 alert('网络出错，请检查后重试');
-                console.error(e);
             } finally {
                 generateBtn.disabled = false;
-                generateBtn.textContent = '生成话术';
+                loadingCard.style.display = 'none';
             }
-        });
+        }
 
-        // 复制功能
+        generateBtn.addEventListener('click', generate);
+        regenBtn.addEventListener('click', generate);
+
+        // 复制
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(resultText.textContent).then(() => {
-                copyBtn.textContent = '已复制';
-                setTimeout(() => {
-                    copyBtn.textContent = '复制话术';
-                }, 2000);
+                copyBtn.textContent = '已复制 ✓';
+                setTimeout(() => { copyBtn.textContent = '复制'; }, 1800);
+            });
+        });
+
+        // 存图分享
+        shareBtn.addEventListener('click', () => {
+            shareBtn.textContent = '生成中…';
+            shareBtn.disabled = true;
+            html2canvas(resultCard, {
+                backgroundColor: '#fff',
+                scale: 2,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '小家话术.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                shareBtn.textContent = '存图';
+                shareBtn.disabled = false;
+            }).catch(() => {
+                shareBtn.textContent = '存图';
+                shareBtn.disabled = false;
+                alert('图片生成失败，请截图分享');
             });
         });
     </script>
