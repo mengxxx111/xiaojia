@@ -10,11 +10,11 @@ exports.handler = async (event) => {
         const tag = params.tag || '日常暖心';
 
         const W = 750;
-        const H = 1000;
-        const padding = 70;
-        const tagH = 52;
-        const lineHeight = 58;
-        const fontSize = 34;
+        const H = 1334;
+        const padding = 80;
+        const tagH = 54;
+        const lineHeight = 62;
+        const fontSize = 36;
         const fontFamily = 'NotoSansSC';
 
         // 算文字行数
@@ -41,53 +41,62 @@ exports.handler = async (event) => {
 
         // 背景渐变
         const grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0, '#FFF9F5');
-        grad.addColorStop(1, '#FFE8DE');
+        grad.addColorStop(0, '#FFFAF6');
+        grad.addColorStop(0.5, '#FFF0E8');
+        grad.addColorStop(1, '#FFE8DD');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
-        // 装饰引号（左上大）
-        ctx.fillStyle = '#FFD4C4';
-        ctx.font = `bold 120px Georgia, serif`;
-        ctx.fillText('"', padding - 15, padding + 80);
+        // 装饰大引号（左上，淡色）
+        ctx.fillStyle = '#FFD9CC';
+        ctx.font = `bold 140px Georgia, serif`;
+        ctx.fillText('"', padding - 10, padding + 90);
 
         // 标签胶囊
-        ctx.font = `24px "${fontFamily}", sans-serif`;
-        const tagW = ctx.measureText(tag).width + 44;
+        ctx.font = `25px "${fontFamily}", sans-serif`;
+        const tagW = ctx.measureText(tag).width + 48;
         const tagX = padding;
-        const tagY = padding + 30;
+        const tagY = padding + 40;
         const tagGrad = ctx.createLinearGradient(tagX, tagY, tagX + tagW, tagY + tagH);
         tagGrad.addColorStop(0, '#E8927C');
         tagGrad.addColorStop(1, '#D4755F');
         ctx.fillStyle = tagGrad;
-        roundRect(ctx, tagX, tagY, tagW, tagH, 26);
+        roundRect(ctx, tagX, tagY, tagW, tagH, 27);
         ctx.fill();
         ctx.fillStyle = '#fff';
         ctx.textBaseline = 'middle';
-        ctx.fillText(tag, tagX + 22, tagY + tagH / 2 + 1);
+        ctx.fillText(tag, tagX + 24, tagY + tagH / 2 + 1);
 
-        // 正文 - 从标签下方开始
+        // 正文
         ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#5C4033';
         ctx.textBaseline = 'top';
-        let y = tagY + tagH + 50;
+        let y = tagY + tagH + 60;
         lines.forEach(l => {
             ctx.fillText(l, padding, y);
             y += lineHeight;
         });
+
+        // 底部装饰线
+        ctx.strokeStyle = '#F0C4B4';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 40, H - 120);
+        ctx.lineTo(W / 2 + 40, H - 120);
+        ctx.stroke();
 
         // 底部品牌
         ctx.font = `22px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#D4A89A';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('小 家 · 两 人 即 成 小 家', W / 2, H - 60);
+        ctx.fillText('小 家 · 两 人 即 成 小 家', W / 2, H - 70);
 
-        // 底部装饰小爱心
-        ctx.font = '28px serif';
+        // 底部小爱心
+        ctx.font = '26px serif';
         ctx.fillStyle = '#E8B4A0';
         ctx.textAlign = 'center';
-        ctx.fillText('♥', W / 2, H - 30);
+        ctx.fillText('♥', W / 2, H - 35);
 
         const buffer = canvas.toBuffer('image/png');
 
