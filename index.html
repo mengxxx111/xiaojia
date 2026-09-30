@@ -604,41 +604,130 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：生成干净的话术卡片图，弹窗长按保存
+        // 存图：用Canvas直接画卡片，不依赖html2canvas，手机浏览器稳定
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
 
-            // 截之前隐藏按钮区，加品牌footer
-            const actions = document.querySelector('.result-actions');
-            const brandFooter = document.createElement('div');
-            brandFooter.style.cssText = 'text-align:center; padding-top:18px; font-size:12px; color:#D4A89A; letter-spacing:3px;';
-            brandFooter.textContent = '小家 · 两人即成小家';
-            actions.style.display = 'none';
-            resultCard.appendChild(brandFooter);
-
-            // 等一帧让DOM更新
             setTimeout(() => {
-                html2canvas(resultCard, {
-                    backgroundColor: '#FFF9F5',
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                }).then(canvas => {
+                try {
+                    const text = resultText.textContent;
+                    const tag = sceneNames[currentScene];
+                    const canvas = drawShareCard(text, tag);
                     modalImg.src = canvas.toDataURL('image/png');
                     modalOverlay.classList.add('show');
-                }).catch(err => {
+                } catch (err) {
                     console.error(err);
-                    showToast('生成失败，请直接截屏保存');
-                }).finally(() => {
-                    // 恢复按钮和footer
-                    actions.style.display = 'flex';
-                    resultCard.removeChild(brandFooter);
+                    showToast('生成失败，请直接截屏');
+                } finally {
                     shareBtn.textContent = '存图';
                     shareBtn.disabled = false;
-                });
+                }
             }, 100);
         });
+
+        // Canvas画分享卡片
+        function drawShareCard(text, tag) {
+            const W = 750;
+            const padding = 60;
+            const tagH = 50;
+            const lineHeight = 56;
+            const fontSize = 32;
+            const footerH = 60;
+
+            // 先算文字高度
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.font = `${fontSize}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+            const maxTextWidth = W - padding * 2;
+            const lines = wrapText(ctx, text, maxTextWidth);
+            const textH = lines.length * lineHeight;
+
+            // 定画布高度
+            const H = padding * 2 + tagH + 30 + textH + 40 + footerH;
+            canvas.width = W;
+            canvas.height = H;
+
+            // 背景渐变
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#FFF9F5');
+            grad.addColorStop(1, '#FFEDE4');
+            ctx.fillStyle = grad;
+            roundRect(ctx, 0, 0, W, H, 24);
+            ctx.fill();
+
+            // 装饰引号
+            ctx.fillStyle = '#FFC9B5';
+            ctx.font = 'bold 100px Georgia, serif';
+            ctx.fillText('"', padding - 10, padding + 50);
+
+            // 标签胶囊
+            ctx.font = '24px "PingFang SC", sans-serif';
+            const tagW = ctx.measureText(tag).width + 40;
+            const tagX = padding;
+            const tagY = padding + 10;
+            const tagGrad = ctx.createLinearGradient(tagX, tagY, tagX + tagW, tagY + tagH);
+            tagGrad.addColorStop(0, '#E8927C');
+            tagGrad.addColorStop(1, '#D4755F');
+            ctx.fillStyle = tagGrad;
+            roundRect(ctx, tagX, tagY, tagW, tagH, 25);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tag, tagX + 20, tagY + tagH / 2 + 1);
+
+            // 正文
+            ctx.font = `${fontSize}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+            ctx.fillStyle = '#5C4033';
+            ctx.textBaseline = 'top';
+            let y = tagY + tagH + 30;
+            lines.forEach(line => {
+                ctx.fillText(line, padding, y);
+                y += lineHeight;
+            });
+
+            // 底部品牌
+            ctx.font = '20px "PingFang SC", sans-serif';
+            ctx.fillStyle = '#D4A89A';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('小 家 · 两 人 即 成 小 家', W / 2, H - 30);
+            ctx.textAlign = 'left';
+
+            return canvas;
+        }
+
+        // 中文自动换行
+        function wrapText(ctx, text, maxWidth) {
+            const lines = [];
+            let line = '';
+            for (let i = 0; i < text.length; i++) {
+                const test = line + text[i];
+                if (ctx.measureText(test).width > maxWidth) {
+                    lines.push(line);
+                    line = text[i];
+                } else {
+                    line = test;
+                }
+            }
+            if (line) lines.push(line);
+            return lines;
+        }
+
+        // 圆角矩形路径
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
 
         modalClose.addEventListener('click', () => {
             modalOverlay.classList.remove('show');
