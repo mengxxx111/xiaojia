@@ -1,4 +1,5 @@
 {
+  "name": "xiaojia",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.55"
   }
