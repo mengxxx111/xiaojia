@@ -1,4 +1,8 @@
-const { createCanvas } = require('@napi-rs/canvas');
+const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
+const path = require('path');
+
+// 注册中文字体
+GlobalFonts.registerFromPath(path.join(__dirname, 'NotoSansSC.otf'), 'NotoSansSC');
 
 exports.handler = async (event) => {
     try {
@@ -12,14 +16,14 @@ exports.handler = async (event) => {
         const lineHeight = 56;
         const fontSize = 32;
         const footerH = 60;
+        const fontFamily = 'NotoSansSC';
 
         // 先算文字行数
         const tempCanvas = createCanvas(W, 100);
         const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.font = `${fontSize}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+        tempCtx.font = `${fontSize}px "${fontFamily}", sans-serif`;
         const maxTextWidth = W - padding * 2;
 
-        // 中文换行
         const lines = [];
         let line = '';
         for (let i = 0; i < text.length; i++) {
@@ -46,16 +50,13 @@ exports.handler = async (event) => {
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
-        // 圆角裁剪
-        // (保持矩形背景，卡片本身在网页里是圆角)
-
         // 装饰引号
         ctx.fillStyle = '#FFC9B5';
-        ctx.font = 'bold 100px Georgia, serif';
+        ctx.font = `bold 100px Georgia, serif`;
         ctx.fillText('"', padding - 10, padding + 50);
 
         // 标签胶囊
-        ctx.font = '24px "PingFang SC", sans-serif';
+        ctx.font = `24px "${fontFamily}", sans-serif`;
         const tagW = ctx.measureText(tag).width + 40;
         const tagX = padding;
         const tagY = padding + 10;
@@ -70,7 +71,7 @@ exports.handler = async (event) => {
         ctx.fillText(tag, tagX + 20, tagY + tagH / 2 + 1);
 
         // 正文
-        ctx.font = `${fontSize}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+        ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#5C4033';
         ctx.textBaseline = 'top';
         let y = tagY + tagH + 30;
@@ -80,7 +81,7 @@ exports.handler = async (event) => {
         });
 
         // 底部品牌
-        ctx.font = '20px "PingFang SC", sans-serif';
+        ctx.font = `20px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#D4A89A';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
