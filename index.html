@@ -612,23 +612,59 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：直接打开图片URL，微信会用自带图片查看器打开，有保存/转发按钮
+        // 存图：不跳转，直接在当前页面全屏显示图片（避免新页面的长按限制）
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
 
-            setTimeout(() => {
-                try {
-                    const text = encodeURIComponent(resultText.textContent);
-                    const tag = encodeURIComponent(sceneNames[currentScene]);
-                    window.location.href = `/.netlify/functions/card?text=${text}&tag=${tag}`;
-                } catch (err) {
-                    console.error(err);
-                    showToast('生成失败，请稍后再试');
+            try {
+                const text = encodeURIComponent(resultText.textContent);
+                const tag = encodeURIComponent(sceneNames[currentScene]);
+                const imgUrl = `/.netlify/functions/card?text=${text}&tag=${tag}`;
+
+                // 创建全屏覆盖层
+                let overlay = document.getElementById('fullscreenImgOverlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'fullscreenImgOverlay';
+                    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#FFEDE4;z-index:99999;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+                    overlay.innerHTML = `
+                        <div style="position:sticky;top:10px;right:10px;text-align:right;padding:10px;z-index:2;">
+                            <span id="closeFullscreenImg" style="display:inline-block;width:36px;height:36px;line-height:36px;text-align:center;background:rgba(0,0,0,0.3);color:#fff;border-radius:50%;font-size:20px;">×</span>
+                        </div>
+                        <img id="fullscreenImg" src="" style="width:100%;display:block;margin-top:-56px;" />
+                    `;
+                    document.body.appendChild(overlay);
+                    document.getElementById('closeFullscreenImg').addEventListener('click', () => {
+                        overlay.style.display = 'none';
+                    });
+                }
+
+                const fsImg = document.getElementById('fullscreenImg');
+                fsImg.onload = () => {
+                    overlay.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
                     shareBtn.textContent = '存图';
                     shareBtn.disabled = false;
-                }
-            }, 100);
+                };
+                fsImg.src = imgUrl;
+
+                // 超时兜底
+                setTimeout(() => {
+                    if (overlay.style.display !== 'block') {
+                        overlay.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                        shareBtn.textContent = '存图';
+                        shareBtn.disabled = false;
+                    }
+                }, 5000);
+
+            } catch (err) {
+                console.error(err);
+                showToast('生成失败，请稍后再试');
+                shareBtn.textContent = '存图';
+                shareBtn.disabled = false;
+            }
         });
 
         // Canvas画分享卡片
