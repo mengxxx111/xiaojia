@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>保存图片</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card-img {
+            max-width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+        .tip {
+            color: #aaa;
+            font-size: 15px;
+            margin-top: 20px;
+            text-align: center;
+            line-height: 2;
+            font-family: -apple-system, "PingFang SC", sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <img class="card-img" id="cardImg" src="" alt="话术卡片">
+    <div class="tip">长按图片 → 保存到相册<br>再分享给TA或发小红书</div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const text = params.get('text') || '';
+        const tag = params.get('tag') || '';
+        document.getElementById('cardImg').src = '/.netlify/functions/card?text=' + encodeURIComponent(text) + '&tag=' + encodeURIComponent(tag);
+    </script>
+</body>
+</html>
