@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小家 · 保存图片</title>
+    <title>小家</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            background: #1a1a1a;
+        html, body {
+            width: 100%;
             min-height: 100vh;
+            background: #FFEDE4;
+        }
+        body {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 20px;
         }
         .card-img {
-            max-width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-        }
-        .tip {
-            color: #999;
-            font-size: 14px;
-            margin-top: 20px;
-            text-align: center;
-            line-height: 2;
-            font-family: -apple-system, "PingFang SC", sans-serif;
+            width: 100%;
+            height: auto;
+            display: block;
         }
         #nl-badge-frame, .netlify-badge { display: none !important; }
     </style>
 </head>
 <body>
-    <img class="card-img" id="cardImg" src="" alt="话术卡片">
-    <div class="tip">长按图片 → 保存到相册<br>再分享给TA或发小红书</div>
+    <img class="card-img" id="cardImg" src="" alt="">
     <script>
         const params = new URLSearchParams(window.location.search);
         const text = params.get('text') || '';
