@@ -358,6 +358,13 @@
             letter-spacing: 3px;
         }
 
+        /* 隐藏Netlify水印 */
+        .netlify-badge,
+        a[href*="netlify.com"][target="_blank"],
+        iframe[src*="netlify"] {
+            display: none !important;
+        }
+
         /* toast提示 */
         .toast {
             position: fixed;
@@ -604,7 +611,7 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：用Canvas直接画卡片，不依赖html2canvas，手机浏览器稳定
+        // 存图：生成卡片大图，全屏展示，长按保存
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
@@ -614,12 +621,30 @@
                     const text = resultText.textContent;
                     const tag = sceneNames[currentScene];
                     const canvas = drawShareCard(text, tag);
-                    // 用blob URL而不是data URL，微信里长按更可能保存
-                    canvas.toBlob(blob => {
-                        const url = URL.createObjectURL(blob);
-                        modalImg.src = url;
+                    const dataUrl = canvas.toDataURL('image/png');
+
+                    // 打开新页面，全屏显示图片
+                    const w = window.open('', '_blank');
+                    if (w) {
+                        w.document.write(`
+                            <html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+                            <title>保存图片</title>
+                            <style>
+                                body { margin:0; background:#1a1a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+                                img { max-width:100%; border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,0.5); }
+                                p { color:#999; font-size:14px; margin-top:16px; text-align:center; line-height:1.8; }
+                            </style></head>
+                            <body>
+                                <img src="${dataUrl}">
+                                <p>长按图片 → 保存到相册</p>
+                            </body></html>
+                        `);
+                        w.document.close();
+                    } else {
+                        // 弹窗被拦截，退回modal
+                        modalImg.src = dataUrl;
                         modalOverlay.classList.add('show');
-                    }, 'image/png');
+                    }
                 } catch (err) {
                     console.error(err);
                     showToast('生成失败，请直接截屏');
