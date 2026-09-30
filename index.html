@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>小家 · 好好说话</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -604,27 +604,40 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：生成图片后弹窗，长按保存
+        // 存图：生成干净的话术卡片图，弹窗长按保存
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
 
-            html2canvas(resultCard, {
-                backgroundColor: '#FFF9F5',
-                scale: 2,
-                logging: false,
-                useCORS: true
-            }).then(canvas => {
-                modalImg.src = canvas.toDataURL('image/png');
-                modalOverlay.classList.add('show');
-                shareBtn.textContent = '存图';
-                shareBtn.disabled = false;
-            }).catch(err => {
-                console.error(err);
-                showToast('图片生成失败，请截图保存');
-                shareBtn.textContent = '存图';
-                shareBtn.disabled = false;
-            });
+            // 截之前隐藏按钮区，加品牌footer
+            const actions = document.querySelector('.result-actions');
+            const brandFooter = document.createElement('div');
+            brandFooter.style.cssText = 'text-align:center; padding-top:18px; font-size:12px; color:#D4A89A; letter-spacing:3px;';
+            brandFooter.textContent = '小家 · 两人即成小家';
+            actions.style.display = 'none';
+            resultCard.appendChild(brandFooter);
+
+            // 等一帧让DOM更新
+            setTimeout(() => {
+                html2canvas(resultCard, {
+                    backgroundColor: '#FFF9F5',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true
+                }).then(canvas => {
+                    modalImg.src = canvas.toDataURL('image/png');
+                    modalOverlay.classList.add('show');
+                }).catch(err => {
+                    console.error(err);
+                    showToast('生成失败，请直接截屏保存');
+                }).finally(() => {
+                    // 恢复按钮和footer
+                    actions.style.display = 'flex';
+                    resultCard.removeChild(brandFooter);
+                    shareBtn.textContent = '存图';
+                    shareBtn.disabled = false;
+                });
+            }, 100);
         });
 
         modalClose.addEventListener('click', () => {
