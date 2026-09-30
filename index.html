@@ -612,7 +612,7 @@
             document.body.removeChild(ta);
         }
 
-        // 存图：打开分享页，图片嵌在网页里，微信可长按保存
+        // 存图：直接打开图片URL，微信会用自带图片查看器打开，有保存/转发按钮
         shareBtn.addEventListener('click', () => {
             shareBtn.textContent = '生成中…';
             shareBtn.disabled = true;
@@ -621,7 +621,7 @@
                 try {
                     const text = encodeURIComponent(resultText.textContent);
                     const tag = encodeURIComponent(sceneNames[currentScene]);
-                    window.location.href = `share.html?text=${text}&tag=${tag}`;
+                    window.location.href = `/.netlify/functions/card?text=${text}&tag=${tag}`;
                 } catch (err) {
                     console.error(err);
                     showToast('生成失败，请稍后再试');
