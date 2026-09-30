@@ -1,7 +1,6 @@
 const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
 const path = require('path');
 
-// 注册中文字体
 GlobalFonts.registerFromPath(path.join(__dirname, 'NotoSansSC.otf'), 'NotoSansSC');
 
 exports.handler = async (event) => {
@@ -11,14 +10,14 @@ exports.handler = async (event) => {
         const tag = params.tag || '日常暖心';
 
         const W = 750;
-        const padding = 60;
-        const tagH = 50;
-        const lineHeight = 56;
-        const fontSize = 32;
-        const footerH = 60;
+        const H = 1000;
+        const padding = 70;
+        const tagH = 52;
+        const lineHeight = 58;
+        const fontSize = 34;
         const fontFamily = 'NotoSansSC';
 
-        // 先算文字行数
+        // 算文字行数
         const tempCanvas = createCanvas(W, 100);
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.font = `${fontSize}px "${fontFamily}", sans-serif`;
@@ -37,55 +36,58 @@ exports.handler = async (event) => {
         }
         if (line) lines.push(line);
 
-        const textH = lines.length * lineHeight;
-        const H = padding * 2 + tagH + 30 + textH + 40 + footerH;
-
         const canvas = createCanvas(W, H);
         const ctx = canvas.getContext('2d');
 
-        // 背景
+        // 背景渐变
         const grad = ctx.createLinearGradient(0, 0, 0, H);
         grad.addColorStop(0, '#FFF9F5');
-        grad.addColorStop(1, '#FFEDE4');
+        grad.addColorStop(1, '#FFE8DE');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, W, H);
 
-        // 装饰引号
-        ctx.fillStyle = '#FFC9B5';
-        ctx.font = `bold 100px Georgia, serif`;
-        ctx.fillText('"', padding - 10, padding + 50);
+        // 装饰引号（左上大）
+        ctx.fillStyle = '#FFD4C4';
+        ctx.font = `bold 120px Georgia, serif`;
+        ctx.fillText('"', padding - 15, padding + 80);
 
         // 标签胶囊
         ctx.font = `24px "${fontFamily}", sans-serif`;
-        const tagW = ctx.measureText(tag).width + 40;
+        const tagW = ctx.measureText(tag).width + 44;
         const tagX = padding;
-        const tagY = padding + 10;
+        const tagY = padding + 30;
         const tagGrad = ctx.createLinearGradient(tagX, tagY, tagX + tagW, tagY + tagH);
         tagGrad.addColorStop(0, '#E8927C');
         tagGrad.addColorStop(1, '#D4755F');
         ctx.fillStyle = tagGrad;
-        roundRect(ctx, tagX, tagY, tagW, tagH, 25);
+        roundRect(ctx, tagX, tagY, tagW, tagH, 26);
         ctx.fill();
         ctx.fillStyle = '#fff';
         ctx.textBaseline = 'middle';
-        ctx.fillText(tag, tagX + 20, tagY + tagH / 2 + 1);
+        ctx.fillText(tag, tagX + 22, tagY + tagH / 2 + 1);
 
-        // 正文
+        // 正文 - 从标签下方开始
         ctx.font = `${fontSize}px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#5C4033';
         ctx.textBaseline = 'top';
-        let y = tagY + tagH + 30;
+        let y = tagY + tagH + 50;
         lines.forEach(l => {
             ctx.fillText(l, padding, y);
             y += lineHeight;
         });
 
         // 底部品牌
-        ctx.font = `20px "${fontFamily}", sans-serif`;
+        ctx.font = `22px "${fontFamily}", sans-serif`;
         ctx.fillStyle = '#D4A89A';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText('小 家 · 两 人 即 成 小 家', W / 2, H - 30);
+        ctx.fillText('小 家 · 两 人 即 成 小 家', W / 2, H - 60);
+
+        // 底部装饰小爱心
+        ctx.font = '28px serif';
+        ctx.fillStyle = '#E8B4A0';
+        ctx.textAlign = 'center';
+        ctx.fillText('♥', W / 2, H - 30);
 
         const buffer = canvas.toBuffer('image/png');
 
