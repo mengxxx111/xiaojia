@@ -594,6 +594,7 @@
                     headers:{'Content-Type':'application/json'},
                     body:JSON.stringify({scene:currentScene,content:content})
                 });
+                if(!res.ok){ showToast('话术服务暂时不可用，稍后再试'); return; }
                 const data=await res.json();
                 if(data.result){
                     $('result-text').textContent=data.result;
@@ -603,7 +604,7 @@
                 }
             }catch(e){
                 console.error(e);
-                showToast('网络出错，请检查后重试');
+                showToast('话术服务暂时不可用，稍后再试');
             }finally{
                 $('loading-mask').classList.remove('show');
                 $('generate-btn').disabled=false;
