@@ -155,13 +155,26 @@
         .emblem .roof2 { fill:none; stroke:var(--gold-dim); stroke-width:1.2; opacity:0.75; }
         .emblem .heart { fill:none; stroke:var(--gold); stroke-width:2; }
         .emblem .flame { fill:var(--gold); }
+        .emblem .dot-l, .emblem .dot-r, .emblem .hrt-l, .emblem .hrt-r { transition:transform 0.4s cubic-bezier(0.22,1,0.36,1); }
+        .emblem .hrt-l { animation:magnetL 4s ease-in-out infinite; }
+        .emblem .hrt-r { animation:magnetR 4s ease-in-out infinite; }
+        .emblem .dot-l { animation:magnetDotL 4s ease-in-out infinite; }
+        .emblem .dot-r { animation:magnetDotR 4s ease-in-out infinite; }
+        @keyframes magnetL { 0%,100% { transform:translate(-17px,0); } 50% { transform:translate(-9px,0); } }
+        @keyframes magnetR { 0%,100% { transform:translate(17px,0); } 50% { transform:translate(9px,0); } }
+        @keyframes magnetDotL { 0%,100% { transform:translate(-3px,0); } 50% { transform:translate(-1px,0); } }
+        @keyframes magnetDotR { 0%,100% { transform:translate(3px,0); } 50% { transform:translate(1px,0); } }
+        .emblem:hover .hrt-l, .emblem:active .hrt-l { animation:none; transform:translate(-7px,0); }
+        .emblem:hover .hrt-r, .emblem:active .hrt-r { animation:none; transform:translate(7px,0); }
+        .emblem:hover .dot-l, .emblem:active .dot-l { animation:none; transform:translate(-1px,0); }
+        .emblem:hover .dot-r, .emblem:active .dot-r { animation:none; transform:translate(1px,0); }
         .emblem-wrap { opacity:0; transform:scale(0.9); animation:emblemIn 1s var(--ease-out) forwards; }
         @keyframes emblemIn { to { opacity:1; transform:scale(1); } }
 
         .logo-line {
             font-family:"Noto Serif SC",serif;
             font-size:64px; font-weight:400; letter-spacing:0.34em;
-            color:var(--cream); margin-bottom:16px;
+            color:var(--cream); margin-bottom:16px; text-indent:0.34em;
             text-shadow:0 0 46px rgba(232,185,106,0.18);
         }
         .logo-line .char-mask { display:inline-block; overflow:hidden; vertical-align:bottom; }
@@ -180,7 +193,7 @@
         .start-quote {
             font-family:"Noto Serif SC",serif;
             font-size:15.5px; color:var(--cream-dim); line-height:2.1;
-            letter-spacing:0.12em; margin-bottom:8px;
+            letter-spacing:0.12em; margin-bottom:8px; text-indent:0.12em;
             opacity:0; animation:fadeUp 0.9s var(--ease-out) 0.8s forwards;
         }
         .start-quote em { font-style:normal; color:var(--gold-bright); }
@@ -360,10 +373,10 @@
                         <svg viewBox="0 0 100 100">
                             <path class="roof" d="M50 10 L92 40 H8 Z"/>
                             <path class="roof2" d="M50 24 L78 44 H22 Z"/>
-                            <circle class="flame" cx="38" cy="58" r="7"/>
-                            <circle class="flame" cx="62" cy="58" r="7"/>
-                            <path class="heart" transform="translate(-12,0)" d="M50 70 c-2.4-2.6-7-3.4-9.2-.9-2.4 2.7-.6 6.2 9.2 11.4 9.8-5.2 11.6-8.7 9.2-11.4-2.2-2.5-6.8-1.7-9.2.9z"/>
-                            <path class="heart" transform="translate(12,0)" d="M50 70 c-2.4-2.6-7-3.4-9.2-.9-2.4 2.7-.6 6.2 9.2 11.4 9.8-5.2 11.6-8.7 9.2-11.4-2.2-2.5-6.8-1.7-9.2.9z"/>
+                            <circle class="flame dot-l" cx="38" cy="58" r="7"/>
+                            <circle class="flame dot-r" cx="62" cy="58" r="7"/>
+                            <path class="heart hrt-l" transform="translate(-12,0)" d="M50 70 c-2.4-2.6-7-3.4-9.2-.9-2.4 2.7-.6 6.2 9.2 11.4 9.8-5.2 11.6-8.7 9.2-11.4-2.2-2.5-6.8-1.7-9.2.9z"/>
+                            <path class="heart hrt-r" transform="translate(12,0)" d="M50 70 c-2.4-2.6-7-3.4-9.2-.9-2.4 2.7-.6 6.2 9.2 11.4 9.8-5.2 11.6-8.7 9.2-11.4-2.2-2.5-6.8-1.7-9.2.9z"/>
                         </svg>
                     </div>
                 </div>
