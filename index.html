@@ -206,7 +206,14 @@
         .trio-item {
             border:1px solid var(--line); border-radius:14px;
             padding:13px 6px 12px; background:rgba(255,240,220,0.02);
+            cursor:pointer; outline:none;
+            transition:border-color 0.4s, background 0.4s, transform 0.45s var(--ease-out), box-shadow 0.4s;
         }
+        .trio-item:hover, .trio-item:focus-visible {
+            border-color:rgba(232,185,106,0.55); background:rgba(232,185,106,0.06);
+            transform:translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,0.35);
+        }
+        .trio-item:active { transform:translateY(-1px) scale(0.98); }
         .trio-item .t-ico { width:21px; height:21px; display:block; margin:0 auto 8px; color:var(--gold); }
         .trio-item .t-name { font-size:12px; color:var(--gold); letter-spacing:0.14em; margin-bottom:3px; }
         .trio-item .t-desc { font-size:10.5px; color:var(--cream-faint); letter-spacing:0.04em; }
@@ -235,7 +242,7 @@
         textarea {
             width:100%; border:none; outline:none; resize:none;
             background:transparent;
-            font-family:inherit; font-size:15.5px; line-height:1.9;
+            font-family:inherit; font-size:16px; line-height:1.9;
             min-height:118px; color:var(--cream);
         }
         textarea::placeholder { color:var(--cream-faint); opacity:0.6; }
@@ -385,15 +392,15 @@
                 <p class="start-quote">一人不为家，<em>两人即小家</em></p>
 
                 <div class="start-trio">
-                    <div class="trio-item">
+                    <div class="trio-item" onclick="goChat()" role="button" tabindex="0" aria-label="去好好说话">
                         <svg class="t-ico" viewBox="0 0 24 24"><path d="M12 3c1.5 3.6 5 4.5 5 4.5s-3.5.9-5 4.5c-1.5-3.6-5-4.5-5-4.5S10.5 6.6 12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
                         <div class="t-name">好好说话</div><div class="t-desc">把气话，说成暖话</div>
                     </div>
-                    <div class="trio-item">
+                    <div class="trio-item" onclick="showToast('慢慢过日子 · 正在打磨，很快见面')" role="button" tabindex="0" aria-label="慢慢过日子">
                         <svg class="t-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         <div class="t-name">慢慢过日子</div><div class="t-desc">不急，来日方长</div>
                     </div>
-                    <div class="trio-item">
+                    <div class="trio-item" onclick="showToast('各撑一半 · 正在打磨，很快见面')" role="button" tabindex="0" aria-label="各撑一半">
                         <svg class="t-ico" viewBox="0 0 24 24"><path d="M4 5.5h16v13H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 3v3M15.5 3v3M4 9.5h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         <div class="t-name">各撑一半</div><div class="t-desc">家的屋檐，两人共顶</div>
                     </div>
@@ -507,7 +514,7 @@
                 ring.style.left=rx+'px'; ring.style.top=ry+'px';
                 requestAnimationFrame(loop);
             })();
-            document.querySelectorAll('a,button,.tag,.card,.example-chip,.orb-btn').forEach(el=>{
+            document.querySelectorAll('a,button,.tag,.card,.example-chip,.orb-btn,.trio-item').forEach(el=>{
                 el.addEventListener('mouseenter',()=>ring.classList.add('grow'));
                 el.addEventListener('mouseleave',()=>ring.classList.remove('grow'));
             });
@@ -595,6 +602,13 @@
             $('input').value = examples[currentScene];
             $('input').focus();
             showToast('已填入示例，可改成你的话');
+        });
+
+        /* 首页三入口卡键盘可达 */
+        document.querySelectorAll('.trio-item').forEach(item=>{
+            item.addEventListener('keydown',e=>{
+                if(e.key==='Enter'||e.key===' '){ e.preventDefault(); item.click(); }
+            });
         });
 
         /* ===== 页面切换 ===== */
